@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json());
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.l8rzo73.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -28,11 +28,36 @@ async function run() {
     // Collect data from database
     await client.connect();
     const classCollection = client.db("LwLDB").collection("Classes")
+    const teacherCollection = client.db("LwLDB").collection("teachers")
 
+    app.post('/teacher', async(req, res) =>{
+      const newTeacher = req.body;
+      console.log(newTeacher)
+      const result = await teacherCollection.insertOne(newTeacher);
+      res.send(result)
+    })
+    app.get('/class/:id', async(req, res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)}
+      const options = {
+        projection: {title:1, name:1, image:1, price:1, short_description:1 }
+      }
+      const result = await classCollection.findOne(query, options);
+      res.send(result);
+    })
     app.get('/class', async(req, res) =>{
-      const result = await classCollection.find().toArray();
+      const result = await classCollection.find().toArray(); 
       res.send(result);
     } )
+    // Send data to Database
+    app.post('/addedClass', async(req, res) =>{
+      const newClass = req.body;
+      console.log(newClass)
+      const result = await classCollection.insertOne(newClass);
+      res.send(result)
+    })
+    // Next--Create a collection
+    
     // ----------------------------------------------------------
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
