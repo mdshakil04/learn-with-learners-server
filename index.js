@@ -6,7 +6,9 @@ require('dotenv').config()
 const port = process.env.PORT || 5000;
 
 // Middlewares
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:5174', 'http://localhost:5173','https://learn-with-learners.web.app']
+}));
 app.use(express.json());
 
 
@@ -31,7 +33,7 @@ async function run() {
     const classCollection = client.db("LwLDB").collection("Classes")
     const teacherCollection = client.db("LwLDB").collection("teachers")
 
-    app.post('/teacher', async(req, res) =>{
+    app.post('/teachers', async(req, res) =>{
       const newTeacher = req.body;
       console.log(newTeacher)
       const result = await teacherCollection.insertOne(newTeacher);
@@ -55,7 +57,7 @@ async function run() {
       const newClass = req.body;
       console.log(newClass)
       const result = await classCollection.insertOne(newClass);
-      res.send(result)
+      res.send(result);
     })
 // Payment intent
     app.post('/create-payment-intent', async(req, res) =>{
